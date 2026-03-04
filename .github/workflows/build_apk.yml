@@ -20,11 +20,11 @@ jobs:
     - name: Build APK with Docker
       run: |
         docker run --rm \
-          -e BUILDOZER_WARN_ON_ROOT=1 \
           -v "$PWD:/app" \
           -w /app \
+          --entrypoint /bin/bash \
           kivy/buildozer:latest \
-          buildozer android debug
+          -c "yes | buildozer android debug"
           
     - name: List build directory
       if: always()
