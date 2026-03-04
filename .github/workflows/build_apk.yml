@@ -73,29 +73,46 @@ jobs:
     - name: Display buildozer version
       run: buildozer --version
       
-    - name: Pre-install Android SDK and accept licenses
+    - name: Setup Android SDK
       run: |
+        # 创建必要的目录
         mkdir -p ~/.android
         touch ~/.android/repositories.cfg
-        # 创建模拟的sdkmanager响应
-        mkdir -p /home/runner/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin
         
-    - name: Build APK
-      run: |
-        # 设置环境变量自动接受许可证
+        # 设置Android SDK路径
         export ANDROID_SDK_ROOT=/home/runner/.buildozer/android/platform/android-sdk
         export ANDROID_HOME=/home/runner/.buildozer/android/platform/android-sdk
-        # 创建licenses目录并添加许可证
+        
+        # 创建SDK目录
+        mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
         mkdir -p $ANDROID_SDK_ROOT/licenses
+        
+        # 下载Android SDK命令行工具
+        cd /tmp
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
+        unzip -q cmdline-tools.zip
+        mkdir -p $ANDROID_SDK_ROOT/cmdline-tools/latest
+        mv cmdline-tools/* $ANDROID_SDK_ROOT/cmdline-tools/latest/ 2>/dev/null || true
+        
+        # 接受许可证
         echo "8933bad161af4178b1185d1a37fbf41ea5269c95" > $ANDROID_SDK_ROOT/licenses/android-sdk-license
         echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> $ANDROID_SDK_ROOT/licenses/android-sdk-license
         echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" >> $ANDROID_SDK_ROOT/licenses/android-sdk-license
         echo "84831b9409646a918e30573bab4c9c91346d8abd" > $ANDROID_SDK_ROOT/licenses/android-sdk-preview-license
+        
+        # 安装必要的SDK组件
+        yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses || true
+        $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-31" "build-tools;31.0.0" || true
+        
+    - name: Build APK
+      run: |
+        export ANDROID_SDK_ROOT=/home/runner/.buildozer/android/platform/android-sdk
+        export ANDROID_HOME=/home/runner/.buildozer/android/platform/android-sdk
         buildozer android debug || buildozer android debug
       timeout-minutes: 90
       env:
         ANDROID_SDK_ROOT: /home/runner/.buildozer/android/platform/android-sdk
-        ANDROID_NDK_ROOT: /home/runner/.buildozer/android/platform/android-ndk
+        ANDROID_NDK_ROOT: /home/runner/.buildozer/android/platform/android-ndk-r25b
         
     - name: List build directory
       if: always()
