@@ -40,6 +40,8 @@ jobs:
           libavcodec-dev \
           zlib1g-dev \
           libunwind-dev \
+          liblzma-dev \
+          uuid-dev \
           openjdk-17-jdk \
           cython3 \
           autoconf \
@@ -62,11 +64,12 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-buildozer-
           
-    - name: Install buildozer
+    - name: Install buildozer and dependencies
       run: |
         pip install --upgrade pip
         pip install buildozer
         pip install "cython<3.0.0"
+        pip install "pyjnius==1.6.0"
         
     - name: Display buildozer version
       run: buildozer --version
