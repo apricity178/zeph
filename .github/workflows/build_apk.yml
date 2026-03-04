@@ -20,6 +20,7 @@ jobs:
     - name: Build APK with Docker
       run: |
         docker run --rm \
+          -e BUILDOZER_WARN_ON_ROOT=1 \
           -v "$PWD:/app" \
           -w /app \
           kivy/buildozer:latest \
