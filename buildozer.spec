@@ -27,10 +27,10 @@ requirements = python3,kivy,requests,pycryptodome,urllib3,charset-normalizer,idn
 android.permissions = INTERNET, ACCESS_NETWORK_STATE, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE
 
 # Android API版本
-android.api = 33
+android.api = 31
 android.minapi = 21
-android.sdk = 33
-android.ndk = 25b
+android.sdk = 31
+android.ndk = 25.2.9519653
 
 # 架构
 android.archs = arm64-v8a, armeabi-v7a
