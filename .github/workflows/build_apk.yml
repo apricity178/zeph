@@ -17,25 +17,31 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Build with Buildozer
-      uses: ArtemSBulgakov/buildozer-action@v1
-      id: buildozer
-      with:
-        workdir: .
-        buildozer_version: stable
+    - name: Build APK with Docker
+      run: |
+        docker run --rm \
+          -v "$PWD:/app" \
+          -w /app \
+          kivy/buildozer:latest \
+          buildozer android debug
+          
+    - name: List build directory
+      if: always()
+      run: |
+        ls -la bin/ || echo "bin directory not found"
         
     - name: Upload APK
       uses: actions/upload-artifact@v4
       if: success()
       with:
         name: zeph-auto-tool-apk
-        path: ${{ steps.buildozer.outputs.filename }}
+        path: bin/*.apk
         retention-days: 30
         
     - name: Create Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
-        files: ${{ steps.buildozer.outputs.filename }}
+        files: bin/*.apk
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
