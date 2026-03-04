@@ -77,8 +77,8 @@ jobs:
       run: |
         mkdir -p ~/.android
         echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c95" > ~/.android/repositories.cfg
-        buildozer android debug
-      timeout-minutes: 60
+        buildozer android debug || buildozer android debug
+      timeout-minutes: 90
       env:
         ANDROID_SDK_ROOT: /home/runner/.buildozer/android/platform/android-sdk
         ANDROID_NDK_ROOT: /home/runner/.buildozer/android/platform/android-ndk
