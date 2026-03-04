@@ -11,125 +11,31 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Set up Python
-      uses: actions/setup-python@v5
+    - name: Build with Buildozer
+      uses: ArtemSBulgakov/buildozer-action@v1
+      id: buildozer
       with:
-        python-version: '3.10'
-        
-    - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          build-essential \
-          ccache \
-          git \
-          ffmpeg \
-          libsdl2-dev \
-          libsdl2-image-dev \
-          libsdl2-mixer-dev \
-          libsdl2-ttf-dev \
-          libportmidi-dev \
-          libswscale-dev \
-          libavformat-dev \
-          libavcodec-dev \
-          zlib1g-dev \
-          libunwind-dev \
-          liblzma-dev \
-          uuid-dev \
-          openjdk-17-jdk \
-          cython3 \
-          autoconf \
-          libtool \
-          automake
-          
-    - name: Set up JDK
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '17'
-        
-    - name: Cache buildozer
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.buildozer
-          ~/.gradle
-        key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
-        restore-keys: |
-          ${{ runner.os }}-buildozer-
-          
-    - name: Install buildozer and dependencies
-      run: |
-        pip install --upgrade pip
-        pip install buildozer
-        pip install "cython<3.0.0"
-        pip install "pyjnius==1.6.0"
-        
-    - name: Display buildozer version
-      run: buildozer --version
-      
-    - name: Setup Android SDK
-      run: |
-        export ANDROID_SDK_ROOT=/home/runner/.buildozer/android/platform/android-sdk
-        export ANDROID_HOME=/home/runner/.buildozer/android/platform/android-sdk
-        
-        mkdir -p ~/.android
-        touch ~/.android/repositories.cfg
-        mkdir -p $ANDROID_SDK_ROOT/licenses
-        mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
-        
-        cd /tmp
-        wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
-        unzip -q cmdline-tools.zip
-        mkdir -p $ANDROID_SDK_ROOT/cmdline-tools/latest
-        mv cmdline-tools/* $ANDROID_SDK_ROOT/cmdline-tools/latest/ 2>/dev/null || true
-        rm -rf cmdline-tools cmdline-tools.zip
-        
-        mkdir -p $ANDROID_SDK_ROOT/tools/bin
-        ln -sf $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager $ANDROID_SDK_ROOT/tools/bin/sdkmanager
-        ln -sf $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager $ANDROID_SDK_ROOT/tools/bin/avdmanager 2>/dev/null || true
-        
-        echo "8933bad161af4178b1185d1a37fbf41ea5269c95" > $ANDROID_SDK_ROOT/licenses/android-sdk-license
-        echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> $ANDROID_SDK_ROOT/licenses/android-sdk-license
-        echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" >> $ANDROID_SDK_ROOT/licenses/android-sdk-license
-        echo "84831b9409646a918e30573bab4c9c91346d8abd" > $ANDROID_SDK_ROOT/licenses/android-sdk-preview-license
-        
-        yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses || true
-        $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-31" "build-tools;31.0.0" || true
-        
-    - name: Build APK
-      run: |
-        export ANDROID_SDK_ROOT=/home/runner/.buildozer/android/platform/android-sdk
-        export ANDROID_HOME=/home/runner/.buildozer/android/platform/android-sdk
-        buildozer android debug || buildozer android debug
-      timeout-minutes: 90
-      env:
-        ANDROID_SDK_ROOT: /home/runner/.buildozer/android/platform/android-sdk
-        ANDROID_NDK_ROOT: /home/runner/.buildozer/android/platform/android-ndk-r25b
-        
-    - name: List build directory
-      if: always()
-      run: |
-        ls -la bin/ || echo "bin directory not found"
+        workdir: .
+        buildozer_version: stable
         
     - name: Upload APK
       uses: actions/upload-artifact@v4
       if: success()
       with:
         name: zeph-auto-tool-apk
-        path: bin/*.apk
+        path: ${{ steps.buildozer.outputs.filename }}
         retention-days: 30
         
     - name: Create Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
-        files: bin/*.apk
+        files: ${{ steps.buildozer.outputs.filename }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
