@@ -73,16 +73,29 @@ jobs:
     - name: Display buildozer version
       run: buildozer --version
       
-    - name: Build APK
+    - name: Pre-install Android SDK and accept licenses
       run: |
         mkdir -p ~/.android
-        echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c95" > ~/.android/repositories.cfg
+        touch ~/.android/repositories.cfg
+        # 创建模拟的sdkmanager响应
+        mkdir -p /home/runner/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin
+        
+    - name: Build APK
+      run: |
+        # 设置环境变量自动接受许可证
+        export ANDROID_SDK_ROOT=/home/runner/.buildozer/android/platform/android-sdk
+        export ANDROID_HOME=/home/runner/.buildozer/android/platform/android-sdk
+        # 创建licenses目录并添加许可证
+        mkdir -p $ANDROID_SDK_ROOT/licenses
+        echo "8933bad161af4178b1185d1a37fbf41ea5269c95" > $ANDROID_SDK_ROOT/licenses/android-sdk-license
+        echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> $ANDROID_SDK_ROOT/licenses/android-sdk-license
+        echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" >> $ANDROID_SDK_ROOT/licenses/android-sdk-license
+        echo "84831b9409646a918e30573bab4c9c91346d8abd" > $ANDROID_SDK_ROOT/licenses/android-sdk-preview-license
         buildozer android debug || buildozer android debug
       timeout-minutes: 90
       env:
         ANDROID_SDK_ROOT: /home/runner/.buildozer/android/platform/android-sdk
         ANDROID_NDK_ROOT: /home/runner/.buildozer/android/platform/android-ndk
-        ACCEPT_LICENSES: "yes"
         
     - name: List build directory
       if: always()
