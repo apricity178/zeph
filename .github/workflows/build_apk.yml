@@ -43,7 +43,10 @@ jobs:
           gstreamer1.0-plugins-base \
           gstreamer1.0-plugins-good \
           openjdk-17-jdk \
-          cython3
+          cython3 \
+          autoconf \
+          libtool \
+          automake
           
     - name: Set up JDK
       uses: actions/setup-java@v4
@@ -70,10 +73,18 @@ jobs:
     - name: Display buildozer version
       run: buildozer --version
       
+    - name: Accept Android SDK licenses
+      run: |
+        mkdir -p ~/.android
+        echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c95" > ~/.android/repositories.cfg
+        yes | sdkmanager --licenses || true
+        
     - name: Build APK
       run: buildozer android debug
       timeout-minutes: 60
-      
+      env:
+        ANDROID_SDK_ROOT: /home/runner/.buildozer/android/platform/android-sdk
+        
     - name: List build directory
       if: always()
       run: |
