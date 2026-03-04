@@ -42,7 +42,8 @@ jobs:
           libgstreamer1.0-dev \
           gstreamer1.0-plugins-base \
           gstreamer1.0-plugins-good \
-          openjdk-17-jdk
+          openjdk-17-jdk \
+          cython3
           
     - name: Set up JDK
       uses: actions/setup-java@v4
@@ -64,6 +65,7 @@ jobs:
       run: |
         pip install --upgrade pip
         pip install buildozer
+        pip install cython
         
     - name: Display buildozer version
       run: buildozer --version
