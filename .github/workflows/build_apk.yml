@@ -73,17 +73,16 @@ jobs:
     - name: Display buildozer version
       run: buildozer --version
       
-    - name: Accept Android SDK licenses
+    - name: Build APK
       run: |
         mkdir -p ~/.android
         echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c95" > ~/.android/repositories.cfg
-        yes | sdkmanager --licenses || true
-        
-    - name: Build APK
-      run: buildozer android debug
+        buildozer android debug
       timeout-minutes: 60
       env:
         ANDROID_SDK_ROOT: /home/runner/.buildozer/android/platform/android-sdk
+        ANDROID_NDK_ROOT: /home/runner/.buildozer/android/platform/android-ndk
+        ACCEPT_LICENSES: "yes"
         
     - name: List build directory
       if: always()
