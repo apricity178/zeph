@@ -21,7 +21,7 @@ source.include_exts = py,png,jpg,kv,atlas,json,txt
 version = 1.0.0
 
 # 依赖项
-requirements = python3,kivy,requests,pycryptodome
+requirements = python3,kivy,requests,pycryptodome,Pillow
 
 # 添加Android权限
 android.permissions = INTERNET, ACCESS_NETWORK_STATE, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE
