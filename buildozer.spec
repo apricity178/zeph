@@ -30,7 +30,8 @@ android.permissions = INTERNET, ACCESS_NETWORK_STATE, WRITE_EXTERNAL_STORAGE, RE
 android.api = 31
 android.minapi = 21
 android.sdk = 31
-android.ndk = 25.2.9519653
+# 使用buildozer默认的NDK版本
+# android.ndk = 25b
 
 # 架构
 android.archs = arm64-v8a, armeabi-v7a
