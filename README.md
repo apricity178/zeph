@@ -6,17 +6,16 @@
 
 ## 功能特性
 
-- ✅ 设备管理（创建、删除、查看）
-- ✅ 批量创建设备
-- ✅ 邀请码绑定
-- ✅ 自动签到
-- ✅ 代币销毁
-- ✅ 账户密码设置
-- ✅ 账户信息查询
-- ✅ 代理支持
-- ✅ 打码平台集成
-- ✅ 日志记录
-- ✅ 数据本地存储
+- 设备管理（创建、删除、导出）
+- 批量创建设备
+- 邀请码绑定
+- 自动签到（支持滑块验证码）
+- 代币销毁
+- 账户信息查询（活力值、代币、连续签到天数）
+- 签到状态重置
+- 代理支持
+- 日志记录
+- 数据本地存储
 
 ## 技术栈
 
@@ -32,6 +31,8 @@ android_app/
 ├── main.py              # 主程序入口
 ├── zeph_crypto.py       # 加密模块
 ├── buildozer.spec       # Buildozer打包配置
+├── .github/workflows/   # GitHub Actions配置
+│   └── build_apk.yml    # 自动打包工作流
 └── README.md           # 说明文档
 ```
 
@@ -114,7 +115,7 @@ package.name = zephauto
 package.domain = com.zephauto
 
 # 依赖项
-requirements = python3,kivy,requests,pycryptodome,urllib3,charset-normalizer,idna,certifi
+requirements = python3,kivy,requests,pycryptodome,Pillow
 
 # Android权限
 android.permissions = INTERNET, ACCESS_NETWORK_STATE, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE
@@ -147,59 +148,48 @@ buildozer android debug deploy run
 adb install bin/zephauto-1.0.0-arm64-v8a_armeabi-v7a-debug.apk
 ```
 
-## 运行环境
-
-- **Android版本**: Android 5.0 (API 21) 及以上
-- **架构**: arm64-v8a, armeabi-v7a
-- **权限**: 网络访问、存储读写
-
 ## 使用说明
 
-1. **配置设置**
-   - 输入邀请码
-   - 配置代理链接（可选）
-   - 配置打码平台账号密码
+### 界面布局
 
-2. **设备管理**
-   - 点击"创建设备"创建新设备
-   - 勾选要操作的设备
-   - 点击相应按钮执行操作
+应用包含4个标签页：
 
-3. **批量操作**
-   - 切换到"批量操作"标签页
-   - 设置批量创建数量
-   - 执行批量操作
+1. **设备标签页**
+   - 配置邀请码和代理URL
+   - 创建设备
 
-4. **日志查看**
-   - 切换到"日志"标签页查看运行日志
-   - 可以清空日志
+2. **列表标签页**
+   - 查看所有设备
+   - 显示设备ID、活力值、代币、签到状态、绑定状态、连续签到天数
+   - 全选/取消全选
+   - 导出设备数据（JSON格式）
+
+3. **操作标签页**
+   - 批量签到
+   - 批量绑定邀请码
+   - 查询账户信息
+   - 重置签到状态
+   - 销毁代币
+   - 停止操作
+
+4. **日志标签页**
+   - 查看操作日志
+   - 清除日志
+
+### 基本操作流程
+
+1. 在**设备**标签页配置邀请码和代理（可选）
+2. 点击"创建设备"生成新设备
+3. 切换到**列表**标签页查看设备
+4. 勾选需要操作的设备
+5. 切换到**操作**标签页执行批量操作
 
 ## 注意事项
 
-1. **网络权限**: 应用需要网络权限才能访问API
-2. **存储权限**: 应用需要存储权限保存设备数据
-3. **代理设置**: 如需使用代理，请确保代理链接格式正确
-4. **打码平台**: 如需自动识别验证码，请配置打码平台账号
-
-## 开发计划
-
-- [ ] 完善API调用功能
-- [ ] 添加验证码自动识别
-- [ ] 优化UI界面
-- [ ] 添加更多批量操作选项
-- [ ] 支持数据导出导入
-
-## 常见问题
-
-### Q: 打包失败怎么办？
-A: 确保在Linux或WSL环境下运行buildozer，Windows原生环境不支持。
-
-### Q: 应用闪退怎么办？
-A: 检查logcat日志，查看具体错误信息。
-
-### Q: 如何调试？
-A: 使用 `buildozer android debug deploy run logcat` 查看实时日志。
+- 应用需要网络权限才能正常工作
+- 设备数据保存在本地，卸载应用会丢失数据
+- 建议定期导出设备数据备份
 
 ## 许可证
 
-本项目仅供学习研究使用。
+MIT License
