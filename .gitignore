@@ -1,0 +1,43 @@
+# Buildozer
+.buildozer/
+bin/
+*.apk
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Kivy
+*.kv~
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Local data
+devices.json
+config.json
+*.json
+
+# Temp files
+*.tmp
+*.temp
+
+# Zip files
+*.zip
+
+# Other
+remove_emoji.py
+logs_*/
